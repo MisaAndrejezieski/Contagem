@@ -1,14 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-# Valores possíveis das cartas
 valores = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-
-# Inicializa o baralho com 32 cartas de cada valor (8 baralhos × 4 naipes)
 baralho = {valor: 32 for valor in valores}
 
 def registrar_cartas(carta_casa, carta_visitante):
-    """Atualiza o contador com as cartas que saíram"""
     for carta in [carta_casa, carta_visitante]:
         if carta in baralho and baralho[carta] > 0:
             baralho[carta] -= 1
@@ -16,7 +12,6 @@ def registrar_cartas(carta_casa, carta_visitante):
             print(f"Aviso: carta '{carta}' já esgotada ou inválida.")
 
 def calcular_probabilidades():
-    """Calcula a probabilidade de cada valor aparecer na próxima rodada"""
     total_restante = sum(baralho.values())
     if total_restante == 0:
         return {valor: 0.0 for valor in valores}
@@ -42,14 +37,12 @@ class ContagemApp:
         frame.pack(pady=5)
 
         ttk.Label(frame, text="Casa:").grid(row=0, column=0, padx=5)
-        self.casa_var = tk.StringVar()
-        casa_menu = ttk.Combobox(frame, textvariable=self.casa_var, values=valores, state="readonly")
-        casa_menu.grid(row=0, column=1)
+        self.casa_entry = ttk.Entry(frame, width=10)
+        self.casa_entry.grid(row=0, column=1)
 
         ttk.Label(frame, text="Visitante:").grid(row=0, column=2, padx=5)
-        self.visitante_var = tk.StringVar()
-        visitante_menu = ttk.Combobox(frame, textvariable=self.visitante_var, values=valores, state="readonly")
-        visitante_menu.grid(row=0, column=3)
+        self.visitante_entry = ttk.Entry(frame, width=10)
+        self.visitante_entry.grid(row=0, column=3)
 
         ttk.Button(self.root, text="Registrar", command=self.registrar).pack(pady=10)
 
@@ -63,12 +56,14 @@ class ContagemApp:
         ttk.Button(self.root, text="Resetar Baralho", command=self.resetar).pack(pady=5)
 
     def registrar(self):
-        casa = self.casa_var.get()
-        visitante = self.visitante_var.get()
-        if not casa or not visitante:
-            messagebox.showwarning("Aviso", "Selecione ambas as cartas.")
+        casa = self.casa_entry.get().strip().upper()
+        visitante = self.visitante_entry.get().strip().upper()
+        if casa not in valores or visitante not in valores:
+            messagebox.showerror("Erro", "Digite valores válidos (2–10, J, Q, K, A).")
             return
         registrar_cartas(casa, visitante)
+        self.casa_entry.delete(0, tk.END)
+        self.visitante_entry.delete(0, tk.END)
         self.update_display()
 
     def update_display(self):
